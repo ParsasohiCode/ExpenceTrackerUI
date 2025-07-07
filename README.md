@@ -78,6 +78,15 @@ app.db              # SQLite database file
 - `/user/` - User info and password management
 - `/dashboard/` - User dashboard (HTML)
 
+## UI/UX & Design
+
+- The dashboard features a modern, visually appealing card-based layout.
+- Each expense is displayed in a two-column row: the left side shows the title, description, and category/date; the right side shows the amount and action buttons (edit/delete), all clearly separated and aligned.
+- The add button is full width and visually prominent, while all other buttons are styled for clarity and accessibility.
+- The dashboard is centered on the page with a soft background, rounded corners, and subtle shadows for a clean, professional look.
+- All styles are managed in the external `App/static/css/dashboard.css` file for easy customization and maintenance.
+- The layout is responsive and works well on both desktop and mobile devices.
+
 ## License
 
 This project is for educational purposes and based on the [roadmap.sh Expense Tracker API project idea](https://roadmap.sh/projects/expense-tracker-api). 

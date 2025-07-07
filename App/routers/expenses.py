@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from .auth import get_current_user
+from .auth import get_current_user_from_cookie
 from ..db import SessionLocal
 from ..models import Expenses
 
@@ -29,7 +29,7 @@ class Expense(BaseModel):
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
-current_user = Annotated[dict, Depends(get_current_user)]
+current_user = Annotated[dict, Depends(get_current_user_from_cookie)]
 
 @expenses_router.get("/read_all_expenses")
 async def read_all_expenses(db: db_dependency , current_user: current_user):

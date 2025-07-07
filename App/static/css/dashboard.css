@@ -6,6 +6,7 @@ body {
   justify-content: center;
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
+  color: #222;
 }
 
 .dashboard-container {
@@ -46,20 +47,75 @@ body {
   padding: 0.9rem 1.2rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.03);
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
   font-size: 1.05rem;
   color: #333;
+  gap: 1.2rem;
 }
 
-.expense-item .expense-desc {
-  font-weight: 500;
+.expense-item .expense-left {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1em;
 }
 
-.expense-item .expense-amount {
-  color: #fda085;
+.expense-desc {
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.08rem;
+  color: #222;
+  margin-bottom: 0.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.expense-description {
+  font-size: 0.98rem;
+  color: #888;
+  font-weight: 400;
+  margin-bottom: 0.1em;
+  margin-top: 0.1em;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.expense-meta {
+  font-size: 0.93rem;
+  color: #b0b0b0;
+  font-weight: 400;
+  margin-bottom: 0.2rem;
+}
+
+.expense-item .expense-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5em;
+  min-width: 90px;
+}
+
+.expense-amount {
+  font-size: 1.15rem;
+  color: #fda085;
+  font-weight: 700;
+  margin-left: auto;
+  margin-top: 0.2em;
+}
+
+.expense-actions {
+  display: flex;
+  gap: 0.5em;
+  margin-left: auto;
+  margin-top: 0.5em;
 }
 
 .add-expense-btn {
@@ -82,9 +138,106 @@ body {
   transform: translateY(-2px) scale(1.03);
 }
 
+.filter-btn, .submit-btn, .cancel-btn, #logoutBtn {
+  background: linear-gradient(90deg, #f6d365 0%, #fda085 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1.2rem;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(253,160,133,0.10);
+}
+
+.filter-btn:hover, .submit-btn:hover, #logoutBtn:hover {
+  background: linear-gradient(90deg, #fda085 0%, #f6d365 100%);
+  color: #222;
+}
+
+.cancel-btn {
+  background: #e5e7eb;
+  color: #222;
+  box-shadow: none;
+}
+
+.cancel-btn:hover {
+  background: #d1d5db;
+  color: #111;
+}
+
+#logoutBtn {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  z-index: 10;
+  min-width: 100px;
+}
+
+.total-expenses {
+  color: #22c55e;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+/* Modal styles */
+.modal-bg {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.18);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-bg.active {
+  display: flex;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.15);
+  padding: 2rem 1.5rem;
+  min-width: 320px;
+  max-width: 95vw;
+}
+
+.modal h3 {
+  margin-top: 0;
+  color: #fda085;
+  text-align: center;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal input, .modal select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  font-size: 1rem;
+}
+
+.modal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 @media (max-width: 500px) {
   .dashboard-container {
     width: 97vw;
     padding: 2rem 0.5rem;
+  }
+  .modal {
+    padding: 1.2rem 0.5rem;
   }
 } 

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Request, Form
+from fastapi import APIRouter, Depends, HTTPException, Request, Form, Cookie
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -70,6 +70,29 @@ def get_current_user(token: Annotated[str, Depends(oath2_bearer)]):
   except jwt.JWTError:
     raise HTTPException(status_code=401, detail="Could not validate user.") 
 
+def get_current_user_from_cookie(request: Request, access_token: str = Cookie(None)):
+  token = None
+  if access_token:
+    if access_token.startswith('Bearer '):
+      token = access_token[len('Bearer '):]
+    else:
+      token = access_token
+  if not token:
+    auth_header = request.headers.get('Authorization')
+    if auth_header and auth_header.startswith('Bearer '):
+      token = auth_header[len('Bearer '):]
+  if not token:
+    raise HTTPException(status_code=401, detail="Not authenticated")
+  try:
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORYTHM])
+    username: str = payload.get("sub")
+    user_id: int = payload.get("id")
+    user_role: str = payload.get("role")
+    if username is None or user_id is None or user_role is None:
+      raise HTTPException(status_code=401, detail="Could not validate user.")
+    return {"username": username, "id": user_id, "role": user_role}
+  except jwt.JWTError:
+    raise HTTPException(status_code=401, detail="Could not validate user.")
 
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):

@@ -25,40 +25,19 @@
   </style>
 </head>
 <body>
+  <button id="logoutBtn" class="filter-btn" style="background:#ff6b6b; position: absolute; top: 24px; right: 32px; z-index: 10;"><i class="fa fa-sign-out-alt"></i> Logout</button>
   <div class="dashboard-container">
-    <div class="dashboard-title">Your Expenses</div>
-    <button class="filter-btn" onclick="openFilterModal()"><i class="fa fa-filter"></i> Filter</button>
-    <div class="total-expenses">
-      <i class="fa fa-calculator"></i> Total: ${{ total }}
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="dashboard-title">Your Expenses</div>
     </div>
-    {% if expenses and expenses|length > 0 %}
-    <ul class="expenses-list">
-      {% for expense in expenses %}
-      <li class="expense-item">
-        <span class="expense-desc">
-          <i class="fa fa-receipt"></i> {{ expense.title }}<br>
-          <small style="color:#888;">{{ expense.category }} | {{ expense.date.strftime('%Y-%m-%d') }}</small>
-        </span>
-        <span class="expense-amount">${{ expense.amount }}</span>
-        <form method="post" action="/dashboard/delete_expense/{{ expense.id }}" style="display:inline;">
-          <button type="submit" class="icon-btn delete" title="Delete"><i class="fa fa-trash"></i></button>
-        </form>
-        <button class="icon-btn edit" title="Edit"
-          data-id="{{ expense.id }}"
-          data-title="{{ expense.title|e }}"
-          data-description="{{ expense.description|e }}"
-          data-amount="{{ expense.amount }}"
-          data-category="{{ expense.category|e }}"
-          data-date="{{ expense.date.strftime('%Y-%m-%d') }}"
-          onclick="handleEditClick(this)">
-          <i class="fa fa-pen"></i>
-        </button>
-      </li>
-      {% endfor %}
+    <button class="filter-btn" onclick="openFilterModal()"><i class="fa fa-filter"></i> Filter</button>
+    <div class="total-expenses" id="totalExpenses">
+      <i class="fa fa-calculator"></i> Total: $0
+    </div>
+    <ul class="expenses-list" id="expensesList">
+      <!-- Expenses will be rendered here by JS -->
     </ul>
-    {% else %}
-    <div style="text-align:center;color:#888;">No expenses found.</div>
-    {% endif %}
+    <div style="text-align:center;color:#888;display:none;" id="noExpensesMsg">No expenses found.</div>
     <button class="add-expense-btn" onclick="openAddModal()"><i class="fa fa-plus"></i> Add Expense</button>
   </div>
 
@@ -66,14 +45,11 @@
   <div class="modal-bg" id="filterModal">
     <div class="modal">
       <h3>Filter Expenses</h3>
-      <form method="get" action="/dashboard/">
-        <select name="category">
+      <form id="filterForm">
+        <select name="category" id="filterCategory">
           <option value="">All Categories</option>
-          {% for cat in categories %}
-          <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
-          {% endfor %}
         </select>
-        <input type="date" name="date" value="{{ selected_date }}">
+        <input type="date" name="date" id="filterDate">
         <div class="modal-actions">
           <button type="button" class="cancel-btn" onclick="closeFilterModal()">Cancel</button>
           <button type="submit" class="submit-btn"><i class="fa fa-filter"></i> Apply</button>
@@ -86,18 +62,20 @@
   <div class="modal-bg" id="addModal">
     <div class="modal">
       <h3>Add Expense</h3>
-      <form method="post" action="/dashboard/add_expense">
+      <form id="addExpenseForm">
         <input type="text" name="title" placeholder="Title" required>
         <input type="text" name="description" placeholder="Description" required>
         <input type="number" name="amount" placeholder="Amount" required min="0">
         <input type="date" name="date" required>
-        <select name="category" required>
+        <select name="category" required id="addCategory">
           <option value="">Select Category</option>
-          <option value="Food">Food</option>
-          <option value="Transport">Transport</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Bills">Bills</option>
-          <option value="Other">Other</option>
+          <option value="Groceries">Groceries</option>
+          <option value="Leisure">Leisure</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Health">Health</option>
+          <option value="Others">Others</option>
         </select>
         <div class="modal-actions">
           <button type="button" class="cancel-btn" onclick="closeAddModal()">Cancel</button>
@@ -111,18 +89,20 @@
   <div class="modal-bg" id="editModal">
     <div class="modal">
       <h3>Edit Expense</h3>
-      <form method="post" id="editExpenseForm">
+      <form id="editExpenseForm">
         <input type="text" name="title" id="editTitle" placeholder="Title" required>
         <input type="text" name="description" id="editDescription" placeholder="Description" required>
         <input type="number" name="amount" id="editAmount" placeholder="Amount" required min="0">
         <input type="date" name="date" id="editDate" required>
         <select name="category" id="editCategory" required>
           <option value="">Select Category</option>
-          <option value="Food">Food</option>
-          <option value="Transport">Transport</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Bills">Bills</option>
-          <option value="Other">Other</option>
+          <option value="Groceries">Groceries</option>
+          <option value="Leisure">Leisure</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Health">Health</option>
+          <option value="Others">Others</option>
         </select>
         <div class="modal-actions">
           <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>

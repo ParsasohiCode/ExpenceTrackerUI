@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from .db import engine, Base
 from .routers import admin, auth, expenses, user, dashboard
 
@@ -11,7 +12,7 @@ app.mount("/static", StaticFiles(directory="App/static"), name="static")
 
 @app.get("/")
 async def read_root():
-  return {"message": "Hello, World!"}
+  return RedirectResponse(url="/auth/login")
 
 app.include_router(auth.router)
 app.include_router(admin.admin_router)
