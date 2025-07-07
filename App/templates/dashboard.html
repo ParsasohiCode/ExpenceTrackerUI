@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .icon-btn { background: none; border: none; cursor: pointer; color: #fda085; font-size: 1.1rem; margin-left: 0.5em; }
+    .icon-btn.delete { color: #ff6b6b; }
+    .icon-btn.edit { color: #4caf50; }
+    .modal-bg { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.25); align-items: center; justify-content: center; z-index: 1000; }
+    .modal-bg.active { display: flex; }
+    .modal { background: #fff; border-radius: 12px; box-shadow: 0 8px 32px 0 rgba(31,38,135,0.15); padding: 2rem 1.5rem; min-width: 320px; max-width: 95vw; }
+    .modal h3 { margin-top: 0; color: #fda085; text-align: center; }
+    .modal form { display: flex; flex-direction: column; gap: 1rem; }
+    .modal input, .modal select { padding: 0.5rem; border-radius: 6px; border: 1px solid #eee; font-size: 1rem; }
+    .modal .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
+    .modal .modal-actions button { padding: 0.5rem 1.2rem; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; }
+    .modal .modal-actions .cancel-btn { background: #eee; color: #888; }
+    .modal .modal-actions .submit-btn { background: linear-gradient(90deg, #f6d365 0%, #fda085 100%); color: #fff; }
+    .filter-btn { padding: 0.4rem 1.2rem; border-radius: 6px; border: none; font-weight: 600; background: #fda085; color: #fff; cursor: pointer; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5em; margin-left: auto; margin-right: auto; }
+    .total-expenses { text-align: center; color: #43a047; font-weight: 600; font-size: 1.1rem; margin-bottom: 1.2rem; }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="dashboard-title">Your Expenses</div>
+    <button class="filter-btn" onclick="openFilterModal()"><i class="fa fa-filter"></i> Filter</button>
+    <div class="total-expenses">
+      <i class="fa fa-calculator"></i> Total: ${{ total }}
+    </div>
+    {% if expenses and expenses|length > 0 %}
+    <ul class="expenses-list">
+      {% for expense in expenses %}
+      <li class="expense-item">
+        <span class="expense-desc">
+          <i class="fa fa-receipt"></i> {{ expense.title }}<br>
+          <small style="color:#888;">{{ expense.category }} | {{ expense.date.strftime('%Y-%m-%d') }}</small>
+        </span>
+        <span class="expense-amount">${{ expense.amount }}</span>
+        <form method="post" action="/dashboard/delete_expense/{{ expense.id }}" style="display:inline;">
+          <button type="submit" class="icon-btn delete" title="Delete"><i class="fa fa-trash"></i></button>
+        </form>
+        <button class="icon-btn edit" title="Edit"
+          data-id="{{ expense.id }}"
+          data-title="{{ expense.title|e }}"
+          data-description="{{ expense.description|e }}"
+          data-amount="{{ expense.amount }}"
+          data-category="{{ expense.category|e }}"
+          data-date="{{ expense.date.strftime('%Y-%m-%d') }}"
+          onclick="handleEditClick(this)">
+          <i class="fa fa-pen"></i>
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div style="text-align:center;color:#888;">No expenses found.</div>
+    {% endif %}
+    <button class="add-expense-btn" onclick="openAddModal()"><i class="fa fa-plus"></i> Add Expense</button>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal-bg" id="filterModal">
+    <div class="modal">
+      <h3>Filter Expenses</h3>
+      <form method="get" action="/dashboard/">
+        <select name="category">
+          <option value="">All Categories</option>
+          {% for cat in categories %}
+          <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+        <input type="date" name="date" value="{{ selected_date }}">
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" onclick="closeFilterModal()">Cancel</button>
+          <button type="submit" class="submit-btn"><i class="fa fa-filter"></i> Apply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Expense Modal -->
+  <div class="modal-bg" id="addModal">
+    <div class="modal">
+      <h3>Add Expense</h3>
+      <form method="post" action="/dashboard/add_expense">
+        <input type="text" name="title" placeholder="Title" required>
+        <input type="text" name="description" placeholder="Description" required>
+        <input type="number" name="amount" placeholder="Amount" required min="0">
+        <input type="date" name="date" required>
+        <select name="category" required>
+          <option value="">Select Category</option>
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Bills">Bills</option>
+          <option value="Other">Other</option>
+        </select>
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" onclick="closeAddModal()">Cancel</button>
+          <button type="submit" class="submit-btn">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Expense Modal -->
+  <div class="modal-bg" id="editModal">
+    <div class="modal">
+      <h3>Edit Expense</h3>
+      <form method="post" id="editExpenseForm">
+        <input type="text" name="title" id="editTitle" placeholder="Title" required>
+        <input type="text" name="description" id="editDescription" placeholder="Description" required>
+        <input type="number" name="amount" id="editAmount" placeholder="Amount" required min="0">
+        <input type="date" name="date" id="editDate" required>
+        <select name="category" id="editCategory" required>
+          <option value="">Select Category</option>
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Bills">Bills</option>
+          <option value="Other">Other</option>
+        </select>
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="submit-btn">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', path='js/main.js') }}"></script>
+</body>
+</html>

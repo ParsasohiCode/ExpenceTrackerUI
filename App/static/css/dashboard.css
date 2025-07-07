@@ -1,0 +1,90 @@
+body {
+  background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+}
+
+.dashboard-container {
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  padding: 2.5rem 2rem 2rem 2rem;
+  width: 420px;
+  opacity: 0;
+  transform: translateY(40px) scale(0.98);
+  transition: all 0.7s cubic-bezier(.77,0,.18,1);
+}
+
+.dashboard-container.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.dashboard-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 1px;
+  font-size: 2rem;
+}
+
+.expenses-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.expense-item {
+  background: #f3f3f3;
+  border-radius: 8px;
+  margin-bottom: 1.2rem;
+  padding: 0.9rem 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.05rem;
+  color: #333;
+}
+
+.expense-item .expense-desc {
+  font-weight: 500;
+}
+
+.expense-item .expense-amount {
+  color: #fda085;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.add-expense-btn {
+  width: 100%;
+  padding: 0.8rem 0;
+  background: linear-gradient(90deg, #f6d365 0%, #fda085 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(253,160,133,0.10);
+  transition: background 0.3s, transform 0.2s;
+  margin-top: 1.2rem;
+}
+
+.add-expense-btn:hover {
+  background: linear-gradient(90deg, #fda085 0%, #f6d365 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+@media (max-width: 500px) {
+  .dashboard-container {
+    width: 97vw;
+    padding: 2rem 0.5rem;
+  }
+} 
